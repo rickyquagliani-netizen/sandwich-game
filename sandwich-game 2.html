@@ -1,0 +1,229 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Sandwich Game</title>
+<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Fredoka:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f6e7c1;--ink:#3a1c10;--card:#fff6dc;--red:#d63a24;--gold:#f4a81d;--gin:#d63a2426;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#2b1710;--ink:#f8e6c6;--card:#43271a;--gin:#ff6b4a22}}
+:root[data-theme="dark"]{--bg:#2b1710;--ink:#f8e6c6;--card:#43271a;--gin:#ff6b4a22}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}*{box-sizing:border-box}[hidden]{display:none!important}
+body{margin:0;height:100%;position:relative;overflow:hidden;background:var(--bg) repeating-conic-gradient(var(--gin) 0 25%,#0000 0 50%) 0 0/46px 46px;color:var(--ink);font:600 16px Fredoka,system-ui,sans-serif}
+section{position:absolute;inset:0;display:flex;flex-direction:column;gap:8px;padding:10px;z-index:1}
+.t{font:400 clamp(40px,13vw,66px)/1 'Lilita One',Impact,sans-serif;color:var(--red);text-shadow:0 3px 0 var(--ink),2px 0 0 var(--ink),-2px 0 0 var(--ink);margin:2px 0;text-align:center;transform:rotate(-2deg)}
+.panel{flex:1 1 0;min-height:0;display:flex;align-items:center;gap:14px;background:var(--card);border:3px solid var(--ink);border-radius:20px;padding:8px 14px;box-shadow:0 5px 0 var(--ink);transition:.3s}
+.panel.on{background:#ffe08a;border-color:var(--red);box-shadow:0 5px 0 var(--red)}
+.swh{height:100%;flex:0 0 auto;aspect-ratio:240/230}.sw{width:100%;height:100%;overflow:visible}
+.inf{display:flex;flex-direction:column;gap:2px;min-width:0}.inf b{font:400 24px 'Lilita One',sans-serif}.inf big{font:400 36px 'Lilita One',sans-serif;color:var(--red)}.inf span{opacity:.7}
+.panel.on .inf{color:#3a1c10}
+input{font:600 20px Fredoka,sans-serif;width:100%;border:3px solid var(--ink);border-radius:12px;padding:8px 10px;background:#fff;color:#3a1c10}
+.vs{text-align:center;font:400 22px 'Lilita One',sans-serif;color:var(--red)}
+.seg{display:flex;gap:8px}.seg button{flex:1;padding:10px;border:3px solid var(--ink);border-radius:12px;background:var(--card);color:var(--ink);font:600 15px Fredoka,sans-serif}.seg .on{background:var(--ink);color:var(--card)}.seg button:disabled{opacity:.5}
+.b{flex:1;border:3px solid var(--ink);border-radius:16px;background:var(--gold);color:#3a1c10;font:400 21px 'Lilita One',sans-serif;padding:13px 6px;box-shadow:0 5px 0 var(--ink);cursor:pointer}.b:active{transform:translateY(4px);box-shadow:none}.b.r{background:var(--red);color:#fff}.b:disabled{opacity:.35}.b:focus-visible,input:focus-visible,.seg button:focus-visible{outline:3px solid var(--red);outline-offset:2px}
+.big{flex:0 0 auto;font-size:30px}
+#stage{flex:1.35 1 0;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;text-align:center}
+#turn{font:400 18px 'Lilita One',sans-serif;background:var(--ink);color:var(--card);padding:3px 14px;border-radius:20px}
+#card{width:min(80%,310px);background:var(--card);border:3px solid var(--ink);border-radius:22px;padding:8px 10px 6px;box-shadow:0 5px 0 var(--ink)}#card svg{width:100%;display:block}#card b{font:400 24px 'Lilita One',sans-serif}
+#card.in{animation:pop .9s cubic-bezier(.2,1.2,.4,1)}
+#price{font:400 46px/1 'Lilita One',sans-serif;color:var(--red);text-shadow:0 2px 0 var(--ink)}.bump{animation:bump .35s}
+#bar{width:70%;height:9px;border-radius:5px;background:#0003;overflow:hidden;border:2px solid var(--ink)}#bar i{display:block;height:100%;background:var(--gold)}
+#msg{min-height:22px}
+#act{display:flex;gap:9px;min-height:62px;padding:0 2px 6px}.num{flex:1.2;display:grid;place-items:center;font:400 30px 'Lilita One',sans-serif}
+.fl{position:absolute;z-index:0;opacity:.9;animation:flt 5s ease-in-out infinite}
+.bt{transition:transform .9s cubic-bezier(.5,0,.3,1)}.closed .bt{transform:translateY(10px)}
+.dr{transform-box:fill-box;transform-origin:center;animation:drop .7s cubic-bezier(.3,1.5,.5,1) both}
+.res{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;background:var(--card);border:3px solid var(--ink);border-radius:18px;padding:8px;min-width:0}.res .swh{height:120px}.res b{font:400 22px 'Lilita One',sans-serif}.res .sc{font:400 38px 'Lilita One',sans-serif;color:var(--red)}.res ul{list-style:none;margin:0;padding:0;font-size:13px;width:100%}.res li{display:flex;justify-content:space-between;gap:4px}.res.w{background:#ffe08a;color:#3a1c10;border-color:var(--red)}
+@media(min-width:0){.swh.pl{aspect-ratio:3/2}.res .swh.pl{height:auto;width:100%}}
+@keyframes pop{from{transform:translateY(-150px) rotate(-220deg) scale(.2);opacity:0}70%{transform:translateY(8px) rotate(8deg) scale(1.1)}to{transform:none;opacity:1}}
+@keyframes drop{from{transform:translateY(-170px) rotate(-8deg);opacity:0}to{transform:none;opacity:1}}
+@keyframes bump{50%{transform:scale(1.35)}}@keyframes shrink{to{width:0}}
+@keyframes flt{50%{transform:translate(16px,-28px) rotate(calc(var(--r) + 18deg))}}
+@media(prefers-reduced-motion:reduce){.fl{animation:none}}
+</style></head><body><svg width="0" height="0" style="position:absolute"><defs><filter id="sh" x="-5%" y="-25%" width="110%" height="160%"><feGaussianBlur in="SourceAlpha" stdDeviation="2" result="b"/><feSpecularLighting in="b" surfaceScale="4" specularConstant=".8" specularExponent="16" lighting-color="#fff" result="sp"><feDistantLight azimuth="235" elevation="55"/></feSpecularLighting><feComposite in="sp" in2="SourceAlpha" operator="in" result="s2"/><feComposite in="SourceGraphic" in2="s2" operator="arithmetic" k1="0" k2="1" k3=".75" k4="0" result="o"/><feDropShadow in="o" dx="0" dy="2" stdDeviation="1.6" flood-opacity=".5"/></filter></defs></svg>
+<section id="intro">
+<h1 class="t">Sandwich Game</h1>
+<div class="panel" id="iAI"><div class="swh"></div><div class="inf"><b>CHEF AI</b><span>Your rival. $20 to spend.</span></div></div>
+<div class="vs">VS</div>
+<div class="panel"><div class="swh"></div><div class="inf"><input id="nick" maxlength="12" placeholder="Your nickname" autocomplete="off"><span>$20 to spend</span></div></div>
+<div class="seg"><button class="on" data-m="classic">Classic</button><button data-m="complete">Complete</button></div><div id="md" style="text-align:center;font-size:14px">5 ingredients each. Highest flavor score wins.</div>
+<button class="b r big" id="go">Play</button>
+</section>
+<section id="game" hidden>
+<div class="panel" id="pAI"><div class="swh"></div><div class="inf"><b>CHEF AI</b><big id="mAI">$20</big><span id="cAI">0/5</span><span id="xAI"></span></div></div>
+<div id="stage"><div id="turn"></div><div id="card"></div><div id="price">$0</div><div id="bar"><i></i></div><div id="msg"></div></div>
+<div class="panel" id="pYou"><div class="swh"></div><div class="inf"><b id="nYou"></b><big id="mYou">$20</big><span id="cYou">0/5</span><span id="xYou"></span></div></div>
+<div id="act"></div>
+</section>
+<section id="end" hidden style="overflow:auto"></section>
+<script>
+const $=s=>document.querySelector(s),sleep=ms=>new Promise(r=>setTimeout(r,ms)),rnd=a=>a[Math.random()*a.length|0],shuf=a=>a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(x=>x[1]);
+const wv=(y,a)=>{let d=`M0 ${y}`;for(let i=0;i<11;i++)d+=`q10 ${i%2?a:-a} 20 0`;return d};
+const rep=(n,f)=>Array.from({length:n},(_,i)=>f(i)).join('');
+const D={
+egg:`<rect x='6' y='11' width='208' height='12' rx='6' fill='#fff' stroke='#e2d8bf' stroke-width='2'/><ellipse cx='110' cy='12' rx='32' ry='9' fill='#f7b500' stroke='#d58b00'/><ellipse cx='100' cy='9' rx='8' ry='3' fill='#fff9'/>`,
+turkey:`<rect x='4' y='6' width='212' height='17' rx='8' fill='#efc7a8' stroke='#c98f72' stroke-width='2'/><path d='M20 14q40-6 80 0t80 0' stroke='#fff9' fill='none' stroke-width='2'/>`,
+ham:`<rect x='4' y='6' width='212' height='17' rx='8' fill='#f29bb0' stroke='#cf6580' stroke-width='2'/><path d='M16 12h60M110 17h70M60 20h40' stroke='#fff6' stroke-width='2'/>`,
+bacon:`<path d='${wv(14,8)}' stroke='#a0221b' stroke-width='12' fill='none' stroke-linecap='round'/><path d='${wv(14,8)}' stroke='#f2a98d' stroke-width='4' fill='none'/>`,
+chicken:`<rect x='3' y='3' width='214' height='22' rx='11' fill='#d9872a' stroke='#9c5a16' stroke-width='2'/>${rep(14,i=>`<circle cx='${12+i*15}' cy='${8+i%3*6}' r='2.4' fill='#f4be63'/>`)}`,
+cheddar:`<rect x='2' y='4' width='216' height='12' rx='3' fill='#f7a81b'/><path d='M30 16l8 10 8-10zM120 16l7 9 7-9zM180 16l6 10 6-10z' fill='#f7a81b'/><circle cx='60' cy='9' r='2.5' fill='#d98a0c'/><circle cx='150' cy='10' r='2' fill='#d98a0c'/>`,
+provolone:`<rect x='2' y='4' width='216' height='14' rx='5' fill='#f6efc4' stroke='#dccf85' stroke-width='2'/><circle cx='45' cy='11' r='3' fill='#e3d796'/><circle cx='110' cy='10' r='4' fill='#e3d796'/><circle cx='170' cy='12' r='2.5' fill='#e3d796'/>`,
+avocado:rep(5,i=>`<ellipse cx='${25+i*42}' cy='14' rx='21' ry='11' fill='#6f9f3b'/><ellipse cx='${25+i*42}' cy='14' rx='15' ry='7' fill='#cde58a'/>`),
+cucumber:rep(7,i=>`<ellipse cx='${18+i*31}' cy='14' rx='14' ry='10' fill='#4c9638' stroke='#2d6526' stroke-width='2'/><ellipse cx='${18+i*31}' cy='14' rx='9' ry='6' fill='#c9e8a6'/><circle cx='${18+i*31}' cy='14' r='1.5' fill='#7ab35a'/>`),
+mayo:`<path d='${wv(9,8)}V21H0Z' fill='#fffbe6' stroke='#e6d9a2' stroke-width='2'/>`,
+ketchup:`<path d='${wv(9,8)}V20H0Z' fill='#d6281c'/><path d='M60 18v8a3 3 0 006 0v-8zM150 18v6a3 3 0 006 0v-6z' fill='#d6281c'/>`,
+brisket:`<rect x='3' y='3' width='214' height='22' rx='9' fill='#d1566f'/><rect x='7' y='7' width='206' height='14' rx='6' fill='#4a2314'/>${rep(10,i=>`<circle cx='${18+i*20}' cy='${11+i%2*5}' r='2' fill='#7a3d22'/>`)}`,
+sausage:rep(5,i=>`<rect x='${5+i*43}' y='4' width='39' height='20' rx='10' fill='#a94a28' stroke='#6c2813' stroke-width='2'/><circle cx='${18+i*43}' cy='11' r='2' fill='#e8a07a'/><circle cx='${26+i*43}' cy='17' r='2' fill='#e8a07a'/>`),
+bolognese:`<path d='${wv(7,6)}V19Q110 30 0 19Z' fill='#9c2f1c'/>${rep(12,i=>`<circle cx='${12+i*18}' cy='${12+i%3*4}' r='3' fill='${i%2?'#5a1a0e':'#c4532f'}'/>`)}`,
+salami:rep(6,i=>`<circle cx='${20+i*36}' cy='14' r='13' fill='#b3262d' stroke='#7a1519' stroke-width='2'/><circle cx='${16+i*36}' cy='11' r='2' fill='#f3d0c2'/><circle cx='${25+i*36}' cy='17' r='2' fill='#f3d0c2'/>`),
+salad:`<path d='${wv(12,14)}V22H0Z' fill='#4fae35'/><path d='${wv(12,14)}' fill='none' stroke='#a5e072' stroke-width='3'/>`,
+tomato:rep(5,i=>`<ellipse cx='${22+i*44}' cy='14' rx='20' ry='11' fill='#df3429' stroke='#a21c15' stroke-width='2'/><ellipse cx='${22+i*44}' cy='14' rx='13' ry='6' fill='#f6806f'/><circle cx='${18+i*44}' cy='14' r='1.5' fill='#fbe3a0'/><circle cx='${27+i*44}' cy='13' r='1.5' fill='#fbe3a0'/>`),
+hot:`<path d='${wv(9,8)}V20H0Z' fill='#ff5a1f'/><path d='M90 18v9a3 3 0 006 0v-9zM30 18v6a3 3 0 006 0v-6z' fill='#ff5a1f'/><circle cx='70' cy='14' r='2' fill='#ffd36a'/><circle cx='160' cy='13' r='2' fill='#ffd36a'/>`,
+onion:rep(6,i=>`<ellipse cx='${20+i*36}' cy='14' rx='17' ry='10' fill='#fff7' stroke='#cf9bd9' stroke-width='3'/><ellipse cx='${20+i*36}' cy='14' rx='9' ry='5' fill='none' stroke='#e6c4ec' stroke-width='2'/>`),
+hash:`<rect x='3' y='4' width='214' height='20' rx='7' fill='#dba43f' stroke='#a2701c' stroke-width='2'/>${rep(18,i=>`<path d='M${10+i*11.5} ${8+i%2*6}l6 8' stroke='#f3d283' stroke-width='2'/>`)}`};
+const sl=(c,st,x='')=>`<rect x='3' y='4' width='214' height='20' rx='8' fill='${c}' stroke='${st}' stroke-width='2'/>${x}`;
+Object.assign(D,{
+cream:sl('#fffaf0','#e4d7b8',`<path d='M20 14q20-8 40 0t40 0t40 0t40 0' stroke='#f0e3c4' stroke-width='3' fill='none'/>`),
+jam:`<path d='${wv(8,6)}V21H0Z' fill='#7a1b3a'/>${rep(8,i=>`<circle cx='${15+i*27}' cy='${13+i%2*3}' r='2.5' fill='#b8365f'/>`)}`,
+mushroom:rep(6,i=>`<path d='M${5+i*35} 24q0-22 15-22t15 22z' fill='#c9a27b' stroke='#8a6540' stroke-width='2'/><rect x='${14+i*35}' y='18' width='12' height='8' fill='#f0e2cc'/>`),
+truffle:rep(9,i=>`<circle cx='${14+i*24}' cy='${13+i%2*3}' r='8' fill='#2a2018' stroke='#0d0906'/><path d='M${8+i*24} 12l12 3' stroke='#d9cdb8'/>`),
+minced:`<path d='${wv(7,6)}V21H0Z' fill='#7b3a21'/>${rep(14,i=>`<circle cx='${10+i*15}' cy='${12+i%3*3}' r='3' fill='${i%2?'#a35632':'#4d2112'}'/>`)}`,
+guac:`<path d='${wv(8,7)}V21H0Z' fill='#7fb33f'/>${rep(9,i=>`<circle cx='${14+i*24}' cy='${13+i%2*3}' r='3' fill='${i%3?'#a8d462':'#d94a35'}'/>`)}`,
+mustard:`<path d='${wv(9,8)}V19H0Z' fill='#e8b400'/><path d='M80 18v8a3 3 0 006 0v-8z' fill='#e8b400'/>`,
+wurstel:rep(4,i=>`<rect x='${5+i*54}' y='4' width='50' height='20' rx='10' fill='#d8735a' stroke='#9c4531' stroke-width='2'/><path d='M${15+i*54} 8l6 12M${30+i*54} 8l6 12' stroke='#8a3a28' stroke-width='3'/>`),
+beans:rep(16,i=>`<ellipse cx='${10+i*13}' cy='${10+i%3*5}' rx='6' ry='4' fill='#8a2f1f' stroke='#5a1a10' transform='rotate(${i*40} ${10+i*13} ${10+i%3*5})'/>`),
+mozzarella:rep(5,i=>`<ellipse cx='${24+i*43}' cy='14' rx='21' ry='11' fill='#fffdf3' stroke='#e2dcc4' stroke-width='2'/>`),
+meatballs:rep(5,i=>`<circle cx='${22+i*44}' cy='14' r='12' fill='#7a3d22' stroke='#4a2314' stroke-width='2'/><circle cx='${18+i*44}' cy='10' r='2' fill='#a8643e'/>`),
+pesto:`<path d='${wv(8,6)}V20H0Z' fill='#4b7a28'/>${rep(10,i=>`<circle cx='${12+i*21}' cy='${12+i%2*4}' r='2' fill='#e8e0a0'/>`)}`,
+lobster:rep(6,i=>`<ellipse cx='${20+i*36}' cy='14' rx='17' ry='11' fill='#e1472c' stroke='#9c2412' stroke-width='2'/><path d='M${12+i*36} 8q8 6 16 0' stroke='#fff5' stroke-width='3' fill='none'/>`),
+crab:`<rect x='3' y='4' width='214' height='20' rx='9' fill='#f1a58a'/>${rep(16,i=>`<path d='M${8+i*13} 7l5 14' stroke='${i%2?'#fff3ea':'#d9694a'}' stroke-width='3'/>`)}`,
+pulled:`<rect x='3' y='3' width='214' height='22' rx='9' fill='#8a4a26'/>${rep(18,i=>`<path d='M${6+i*12} ${6+i%3*6}l9 ${4-i%2*8}' stroke='${i%2?'#c58a52':'#5a2c14'}' stroke-width='3' stroke-linecap='round'/>`)}`,
+falafel:rep(5,i=>`<circle cx='${22+i*44}' cy='14' r='12' fill='#8c5a2a' stroke='#5e3a18' stroke-width='2'/><circle cx='${18+i*44}' cy='12' r='2' fill='#7fae3a'/><circle cx='${27+i*44}' cy='17' r='2' fill='#7fae3a'/>`),
+pepper:rep(4,i=>`<ellipse cx='${28+i*54}' cy='14' rx='24' ry='10' fill='none' stroke='#e23a2d' stroke-width='6'/>`),
+burrata:`<ellipse cx='110' cy='14' rx='78' ry='12' fill='#fffdf5' stroke='#e2dcc4' stroke-width='2'/><ellipse cx='110' cy='15' rx='36' ry='6' fill='#fff0c8'/>`,
+mac:sl('#f5c542','#c28e12',rep(14,i=>`<path d='M${12+i*15} 12q4-6 8 0' stroke='#e29a1a' stroke-width='4' fill='none'/>`)),
+surstromming:sl('#8b8f76','#565a44',rep(12,i=>`<path d='M${14+i*17} 8v12M${14+i*17} 14l7-4' stroke='#d8dbc0' stroke-width='1.5' fill='none'/>`))});
+const vec=t=>{const o={s:0,w:0,f:0,h:0,a:0,r:0,u:0,k:0};(t||'').split(' ').forEach(x=>{if(x)o[x[0]]=+x.slice(1)});return o};
+const ALL='egg|Egg|4|||f1 u1 s1;turkey|Turkey|4|poultry||s1 u1;ham|Ham|4|pork||s2 u1;bacon|Bacon|6|pork||s2 f2 k2 u1;chicken|Fried Chicken|6|poultry||s1 f2;cheddar|Cheddar|4||d|s1 f2 u1;provolone|Provolone|4||d|s1 f2;avocado|Avocado|5||v|f2 r1;cucumber|Cucumbers|3||v|r2;mayo|Mayonnaise|3||s|f2 a1;ketchup|Ketchup|3||s|w1 a1;brisket|Brisket|7|beef||f1 k2 u2 s1;sausage|Sausage|5|pork||s2 f2 h1;bolognese|Bolognese|4|beef||u2 a1 f1;salami|Salami|4|pork||s2 f2 u1;salad|Salad|3||v|r2;tomato|Tomato|3||v|r1 a1;hot|Hot Sauce|3||s|h3 a1;onion|Onion|3||v|r1 h1 w1;hash|Hashbrowns|5|||f2 s1;cream|Cream Cheese|4||d|f2 w1;jam|Jam|3|||w3 a1;mushroom|Mushroom|4||v|u2;truffle|Truffle|6|||u3 f1;minced|Minced Meat|4|beef||f1 u1;guac|Guacamole|4||v|f2 r1 a1;mustard|Mustard|3||s|a2 h1;wurstel|Wrustel|4|pork||s2 f1 k1;beans|Beans|3|||s1 w1 u1;mozzarella|Mozzarella|4||d|f1 r1;meatballs|Meatballs|5|beef||u1 f1;pesto|Pesto Sauce|4||s|f1 u1 r1;lobster|Lobster|7|sea||u2 w1 s1;crab|Crab|6|sea||u1 w1 s1;pulled|Pulled Pork|6|pork||f1 k2 w1 u1;falafel|Falafel|4|fal||f1 r1 h1;pepper|Pepper|3||v|r1 h1 w1;burrata|Burrata|6||d|f2 r1;mac|Mac & Cheese|5||d|f3 s1 u1;surstromming|Surstromming|2|sea||s4 u3 a3'.split(';').map(r=>{const[id,n,b,k,t,v]=r.split('|');return{id,n,b:+b,k,m:k?1:0,t,d:t=='d',v:vec(v),cat:'ing'}});
+const XA=Object.entries({side:'Fries|🍟|3|s2 f2;Poutine|🍟|4|s3 f3 u2;Chicken Nuggets|🍗|3|s2 f2;Onion Rings|🧅|3|s2 f2 w1;Fried Calamari|🦑|4|s2 f1 u1;Fried Mozzarella|🧀|4|s2 f3;Corn Dog|🌭|3|s2 f2 w1;Mac & Cheese|🧀|4|s2 f3 u1;Fruit Mix|🍓|4|w2 r3 a1',drink:'Soda|🥤|3|w3;Lemonade|🍋|3|w2 a2 r1;Water|💧|2|r1;Wine|🍷|4|a2 u1;Beer|🍺|4|a1 u1;Orange Juice|🍊|3|w2 a2;Coffee (American)|☕|3|k1;Coffee (Espresso)|☕|3|k1 u1;Cappuccino|☕|4|f1 w1;Chai Tea Latte|🫖|4|w2;Milk|🥛|3|f1 w1;Tea|🍵|3|r1;Matcha Tea|🍵|4|r1 u1',dessert:'Tiramisù|🍰|5|w3 f2;Brownies|🍫|5|w3 f2;Banana Split|🍨|5|w3 f1 r1;Milkshake|🥤|4|w3 f2;Milkshake Lotus|🥤|5|w3 f2;Bread With Chocolate|🍞|4|w3 f1;Crepes Chocolate|🥞|5|w3 f1;Pancake Syrup & Butter|🥞|5|w3 f2 s1;Waffle With Chocolate|🧇|5|w3 f1'}).flatMap(([cat,l])=>l.split(';').map(r=>{const[n,e,b,v]=r.split('|');return{id:n.toLowerCase().replace(/\W/g,''),n,e,b:+b,k:'',m:0,t:'',d:0,v:vec(v),cat}}));
+const N=Object.fromEntries([...ALL,...XA].map(x=>[x.id,x.n]));
+const PR='bacon tomato 3;bacon salad 2;bacon egg 3;hash egg 3;hash bacon 2;hash ketchup 3;chicken hot 4;chicken mayo 2;chicken cheddar 1;brisket onion 3;brisket cheddar 2;brisket hot 2;ham cheddar 3;ham provolone 2;ham mayo 2;turkey avocado 4;turkey provolone 3;turkey cucumber 2;turkey mayo 2;salami provolone 3;sausage onion 3;sausage ketchup 2;bolognese provolone 3;bolognese onion 1;avocado tomato 2;avocado egg 2;cucumber salad 2;mayo salad 1;hot egg 2;tomato cheddar 1;salad tomato 1;ketchup bolognese -3;hot ketchup -2;bolognese avocado -2;bolognese cucumber -2;mayo ketchup -1;surstromming onion 4;surstromming hash 4;surstromming cream 3;surstromming cucumber 2;jam lobster -3;jam crab -2;jam surstromming -3;mustard crab -2;mushroom crab -2;beer milk -3;wine milk -3;burrata tomato 3;mozzarella tomato 3;mozzarella pesto 3;mozzarella meatballs 3;jam bacon 3;jam cream 3;mushroom truffle 3;truffle egg 3;wurstel mustard 3;pulled mustard 2;beans pulled 3;mac pulled 3;lobster mayo 3;crab avocado 2;fries ketchup 2;beer brisket 3;wine brisket 2;lemonade chicken 2;milk brownies 2'.split(';').map(x=>x.split(' '));
+function score(it){const ids=it.map(x=>x.id),notes=[],T={s:0,w:0,f:0,h:0,a:0,r:0,u:0,k:0};let s=0;
+it.forEach(x=>{s+=x.b;for(const k in T)T[k]+=x.v[k]});
+const add=(t,p)=>{s+=p;notes.push([t,p])},kd=new Set(it.filter(x=>x.k).map(x=>x.k)),I=x=>ids.includes(x);
+PR.forEach(([a,b,p])=>{if(I(a)&&I(b)&&+p)add(N[a]+' + '+N[b],+p)});
+if(I('bacon')&&I('tomato')&&I('salad'))add('Perfect BLT',5);
+const cut=T.a+T.r;
+if(T.f>=5&&cut<3)add('Too heavy, needs freshness',-4);else if(T.f>=3&&cut>=3)add('Rich meets fresh',3);
+if(T.w>=2&&T.s>=3&&T.w<9)add('Sweet-salty contrast',3);if(T.w>=9)add('Too sweet',-3);
+if(T.h>=1&&T.h<=4)add('Nice kick of heat',2);if(T.h>=7)add('Too spicy',-3);
+if(T.u>=5)add('Deep umami',2);if(T.k>=3&&T.a>=2)add('Smoke cut by acid',2);if(T.s>=12)add('Salt overload',-3);
+if(kd.has('poultry')&&kd.has('beef'))add('Chicken and beef compete',-2);
+if(kd.has('sea')&&(kd.has('pork')||kd.has('beef')))I('lobster')||I('crab')?add('Surf & turf',2):add('Sea and land clash',-4);
+if(I('surstromming')){add('Surströmming takes over',-6);const o=it.filter(x=>x.k&&x.k!='sea').length;if(o)add('Surströmming with meat: palate says no',-8*o)}
+if(kd.has('sea')&&it.some(x=>['mayo','cream','avocado','guac','lemonade'].includes(x.id)))add('Seafood loves creamy & citrus',2);
+if(kd.has('sea')&&it.some(x=>x.d))add('Seafood and cheese clash',-2);
+if(it.filter(x=>x.k=='pork').length>=2)add('Pork harmony',1);
+if(kd.size>=3)add('Too many proteins',-3);
+const sa=it.filter(x=>x.t=='s').length;if(sa>2)add('Too saucy',-3*(sa-2));
+if(!it.some(x=>x.t=='v'||x.id=='fruitmix'))add('No veggies',-3);
+return{s,notes}}
+const SW=`<svg class='sw' viewBox='0 0 240 230'><rect x='10' y='190' width='220' height='36' rx='10' fill='#c47a2a'/><rect x='17' y='190' width='206' height='27' rx='7' fill='#f3d595'/><g class='ls'></g><g class='bt'><path d='M10 48C2 14 36 2 120 2S238 14 230 48Z' fill='#c47a2a'/><path d='M20 44C14 20 46 11 120 11S226 20 220 44Z' fill='#f3d595'/></g></svg>`;
+const gl=(c,x='',t='')=>`<path d='M18 20h24l-2.5 34q0 2-2 2H22.5q-2 0-2-2z' fill='${c}'/>${x}<path d='M16 8h28l-3 46q0 3-3 3H22q-3 0-3-3z' fill='#dff3ff' fill-opacity='.35' stroke='#6f8fa3' stroke-width='2.5'/>${t}`;
+const cu=(c,x='')=>`<path d='M10 22h34v14q0 16-17 16t-17-16z' fill='#fff' stroke='#8a7a6a' stroke-width='2.5'/><ellipse cx='27' cy='22' rx='17' ry='4.5' fill='${c}'/>${x}<path d='M44 26q12 0 8 10t-10 4' fill='none' stroke='#8a7a6a' stroke-width='3'/>`;
+const bub=`<circle cx='26' cy='30' r='2' fill='#fff8'/><circle cx='34' cy='40' r='2.5' fill='#fff8'/><circle cx='28' cy='47' r='1.5' fill='#fff8'/>`,strw=`<path d='M34 26L42 2' stroke='#d63a24' stroke-width='4'/>`,cr=`<ellipse cx='30' cy='9' rx='13' ry='6' fill='#fff'/>`;
+const sx=c=>`<circle cx='44' cy='12' r='8' fill='${c}' stroke='#0003' stroke-width='2'/><path d='M44 4v16M36 12h16' stroke='#fff8' stroke-width='1.5'/>`;
+const bw=(x,c='#fff')=>`${x}<path d='M6 34h48q0 20-24 20T6 34z' fill='${c}' stroke='#8a7a6a' stroke-width='2.5'/>`;
+const XD={
+fries:rep(7,i=>`<rect x='${12+i*5.2}' y='${6+i%3*3}' width='4' height='28' rx='1.5' fill='#f6c62a' stroke='#c99a10' transform='rotate(${i*4-12} ${14+i*5} 30)'/>`)+`<path d='M10 28h40l-5 26H15z' fill='#d63a24' stroke='#8a1c10' stroke-width='2'/>`,
+poutine:bw(rep(6,i=>`<rect x='${12+i*6}' y='${18+i%2*3}' width='4.5' height='20' rx='2' fill='#f1be2b' transform='rotate(${i*10-25} ${14+i*6} 30)'/>`)+`<path d='M8 34q10-8 22-3t22 3z' fill='#6a3a1c'/><circle cx='18' cy='30' r='3' fill='#fffbe8'/><circle cx='34' cy='28' r='3.5' fill='#fffbe8'/><circle cx='44' cy='31' r='2.5' fill='#fffbe8'/>`),
+chickennuggets:rep(3,i=>`<ellipse cx='${16+i*14}' cy='${42-i%2*14}' rx='13' ry='10' fill='#d9872a' stroke='#9c5a16' stroke-width='2'/><circle cx='${12+i*14}' cy='${38-i%2*14}' r='1.8' fill='#f4be63'/><circle cx='${20+i*14}' cy='${44-i%2*14}' r='1.8' fill='#f4be63'/>`),
+onionrings:rep(3,i=>`<circle cx='${18+i*12}' cy='${26+i%2*12}' r='12' fill='none' stroke='#dba03a' stroke-width='7'/><circle cx='${18+i*12}' cy='${26+i%2*12}' r='12' fill='none' stroke='#f4cf7a' stroke-width='2'/>`),
+friedcalamari:rep(3,i=>`<circle cx='${16+i*13}' cy='${24+i%2*10}' r='10' fill='none' stroke='#e0b26a' stroke-width='6'/>`)+`<path d='M34 52a14 14 0 0120-12z' fill='#ffe45a' stroke='#c9a800' stroke-width='2'/>`,
+friedmozzarella:`<rect x='8' y='14' width='40' height='14' rx='6' fill='#d9872a' stroke='#9c5a16' stroke-width='2' transform='rotate(-14 28 21)'/><rect x='12' y='34' width='40' height='14' rx='6' fill='#d9872a' stroke='#9c5a16' stroke-width='2'/><ellipse cx='50' cy='41' rx='4' ry='6' fill='#fffbe6'/><path d='M46 18q6 6 4 14' stroke='#fffbe6' stroke-width='3' fill='none'/>`,
+corndog:`<rect x='28' y='40' width='4' height='18' fill='#d9a76a'/><rect x='19' y='4' width='22' height='42' rx='11' fill='#e0a23a' stroke='#9c6a16' stroke-width='2'/><path d='M22 14l16 6-16 6 16 6' stroke='#e8b400' stroke-width='3' fill='none'/>`,
+maccheese:bw(`<ellipse cx='30' cy='32' rx='24' ry='9' fill='#f5c542'/>`+rep(6,i=>`<path d='M${12+i*7} ${28+i%2*4}q3-5 6 0' stroke='#e29a1a' stroke-width='3' fill='none'/>`)),
+fruitmix:bw(`<circle cx='18' cy='30' r='7' fill='#d6203a'/><circle cx='32' cy='26' r='8' fill='#ff9d1a'/><circle cx='42' cy='28' r='6' fill='#8bbd3a'/><circle cx='26' cy='34' r='3' fill='#3a4aa8'/><circle cx='46' cy='34' r='3' fill='#3a4aa8'/>`),
+soda:gl('#3b1a0e',bub,strw),lemonade:gl('#f6e36a',bub,sx('#ffe45a')),water:gl('#9fd8ff',bub),orangejuice:gl('#ff9d1a',bub,sx('#ff8a00')),milk:gl('#fffef5'),
+wine:`<path d='M20 6h20q2 22-10 26-12-4-10-26z' fill='#eef6ff' fill-opacity='.5' stroke='#6f8fa3' stroke-width='2.5'/><path d='M22 16h16q-1 14-8 16-7-2-8-16z' fill='#8d1f3d'/><path d='M30 32v18M20 52h20' stroke='#6f8fa3' stroke-width='3'/>`,
+beer:`<rect x='12' y='14' width='28' height='40' rx='5' fill='#f2a516' stroke='#9a6a10' stroke-width='2.5'/><path d='M10 16q2-10 10-6t10-4 10 4 2 6z' fill='#fff' stroke='#ddd'/><path d='M40 22q13 0 10 13t-10 8' fill='none' stroke='#9a6a10' stroke-width='3'/><path d='M20 24v26M28 24v26' stroke='#fff5' stroke-width='3'/>`,
+coffeeamerican:cu('#3a2012'),coffeeespresso:`<g transform='translate(6 10) scale(.8)'>${cu('#24120a')}</g>`,
+cappuccino:cu('#c58a52',`<ellipse cx='27' cy='22' rx='12' ry='3' fill='#f5e6cc'/>`),chaitealatte:cu('#c9985a',`<circle cx='27' cy='22' r='3' fill='#7a4a2a'/>`),
+tea:cu('#c8801a',`<path d='M27 22V8' stroke='#666' stroke-width='1.5'/><rect x='23' y='3' width='8' height='8' fill='#fff' stroke='#999'/>`),matchatea:cu('#7fae3a',`<ellipse cx='27' cy='22' rx='12' ry='3' fill='#b6d86a'/>`),
+tiramis:`<rect x='8' y='14' width='44' height='38' rx='4' fill='#f8efd8' stroke='#b89a6a' stroke-width='2'/><rect x='8' y='14' width='44' height='9' rx='4' fill='#4a2a1a'/><rect x='8' y='29' width='44' height='6' fill='#d9b07a'/><rect x='8' y='43' width='44' height='7' fill='#d9b07a'/>`,
+brownies:`<rect x='6' y='30' width='40' height='22' rx='3' fill='#4a2414' stroke='#2a1008' stroke-width='2'/><rect x='14' y='12' width='40' height='22' rx='3' fill='#5a2c18' stroke='#2a1008' stroke-width='2'/><circle cx='24' cy='20' r='2.5' fill='#c9a070'/><circle cx='40' cy='26' r='2.5' fill='#c9a070'/>`,
+bananasplit:`<path d='M4 36q26 20 52 0z' fill='#e9ddc6' stroke='#8a7a6a' stroke-width='2.5'/><path d='M8 36q22 10 44 0' stroke='#f2d03a' stroke-width='6' fill='none'/><circle cx='18' cy='30' r='8' fill='#f9d3e3'/><circle cx='30' cy='26' r='8' fill='#fffdf3' stroke='#e5dcc0'/><circle cx='42' cy='30' r='8' fill='#6a3a22'/><path d='M14 28q8 6 30-4' stroke='#3a1a0e' stroke-width='3' fill='none'/><circle cx='30' cy='16' r='3' fill='#d6203a'/>`,
+milkshake:gl('#f7c5d9',bub,cr+`<circle cx='30' cy='4' r='3' fill='#d6203a'/>`+strw),milkshakelotus:gl('#d8a468',bub,cr+`<rect x='24' y='-2' width='12' height='8' rx='2' fill='#c47a2a' transform='rotate(-15 30 2)'/>`),
+breadwithchocolate:`<path d='M10 24q-6-14 8-16h24q14 2 8 16v26H10z' fill='#d9a15a' stroke='#9c6a2a' stroke-width='2.5'/><rect x='16' y='22' width='28' height='20' rx='4' fill='#4a2414'/><path d='M20 28q6 4 12 0' stroke='#7a4a2a' stroke-width='2' fill='none'/>`,
+crepeschocolate:`<ellipse cx='30' cy='46' rx='26' ry='7' fill='#f4f1ea' stroke='#9a8f7d' stroke-width='2'/><path d='M8 42Q30 4 52 42Z' fill='#f0cf91' stroke='#c08a3a' stroke-width='2.5'/><path d='M16 38q14-18 28 0' stroke='#4a2414' stroke-width='4' fill='none'/>`,
+pancakesyrupbutter:rep(3,i=>`<ellipse cx='30' cy='${44-i*9}' rx='22' ry='7' fill='#e8b565' stroke='#a8741f' stroke-width='2'/>`)+`<path d='M10 24q20 6 40 0q4 10-6 12t-10 14-6-12-18-14z' fill='#8a3a10' fill-opacity='.85'/><rect x='24' y='12' width='12' height='8' rx='2' fill='#ffe97a'/>`,
+wafflewithchocolate:`<rect x='8' y='10' width='44' height='40' rx='5' fill='#e6b25c' stroke='#a8741f' stroke-width='2.5'/><path d='M8 23h44M8 36h44M21 10v40M34 10v40' stroke='#b9822f' stroke-width='2'/><path d='M12 20q10 10 20 0t18 6' stroke='#4a2414' stroke-width='4' fill='none'/>`};
+const SLOT=(c,x,y,l)=>`<g transform='translate(${x} ${y})'><rect width='60' height='60' rx='12' fill='none' stroke='currentColor' stroke-opacity='.4' stroke-dasharray='5 4' stroke-width='2'/><text x='30' y='34' text-anchor='middle' font-size='12' fill='currentColor' opacity='.6' font-family='Fredoka,sans-serif'>${l}</text><g class='sl-${c}'></g></g>`;
+const PLATE=`<svg class='sw' viewBox='0 0 360 240'><ellipse cx='180' cy='212' rx='176' ry='24' fill='#f4f1ea' stroke='#9a8f7d' stroke-width='3'/><ellipse cx='180' cy='210' rx='140' ry='16' fill='none' stroke='#cfc8b8' stroke-width='3'/>${SW.replace("<svg class='sw'","<svg x='60' y='0' width='240' height='230'")}${SLOT('dessert',300,66,'Dessert')}${SLOT('drink',300,136,'Drink')}${SLOT('side',0,106,'Side')}</svg>`;
+const base=()=>mode=='complete'?PLATE:SW;
+const putSlot=(root,it)=>{const g=root.querySelector('.sl-'+it.cat);if(g)g.innerHTML=`<g class='dr'><g filter='url(#sh)'>${XD[it.id]}</g></g>`};
+const lay=(g,id,i)=>g.insertAdjacentHTML('beforeend',`<g transform='translate(10 ${162-26*i})'><g class='dr'><g filter='url(#sh)'>${D[id]}</g></g></g>`);
+const fill=(root,items)=>{root.innerHTML=base();items.forEach((x,i)=>lay(root.querySelector('.ls'),x.id,i))};
+let G,timers=[];
+// ---------- intro ----------
+document.querySelectorAll('#intro .swh').forEach(r=>{r.innerHTML=SW;const g=r.querySelector('.ls');let i=0;timers.push(setInterval(()=>{if(i>4){g.innerHTML='';i=0}lay(g,rnd(ALL).id,i++)},600+Math.random()*400))});
+for(let i=0;i<9;i++){const e=document.createElement('div');e.className='fl';e.style.cssText=`left:${Math.random()*70}%;top:${Math.random()*92}%;width:${70+Math.random()*60}px;--r:${Math.random()*40-20}deg;transform:rotate(var(--r));animation-duration:${4+Math.random()*4}s;animation-delay:-${Math.random()*5}s`;e.innerHTML=`<svg viewBox='-4 -4 228 36'>${D[rnd(ALL).id]}</svg>`;$('#intro').before(e)}
+$('#go').onclick=()=>{timers.forEach(clearInterval);document.querySelectorAll('.fl').forEach(e=>e.remove());play($('#nick').value.trim()||'Player')};
+document.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{mode=b.dataset.m;document.querySelectorAll('.seg button').forEach(x=>x.classList.toggle('on',x==b));$('#md').textContent=mode=='complete'?'Build a full plate: sandwich + $5 each for a side, a drink and a dessert. All In only on your last pick.':'5 ingredients each. Highest flavor score wins.'});
+// ---------- helpers ----------
+const show=id=>['intro','game','end'].forEach(s=>$('#'+s).hidden=s!=id);
+const msg=t=>$('#msg').textContent=t;
+const render=()=>{for(const[w,s]of[['you','You'],['ai','AI']]){$('#m'+s).textContent='$'+G[w].money;$('#c'+s).textContent=G[w].items.length+'/5'}};
+const bar=ms=>{const b=$('#bar i');b.style.animation='none';void b.offsetWidth;if(ms)b.style.animation=`shrink ${ms}ms linear forwards`;$('#bar').style.opacity=ms?1:0};
+function setPrice(p){const e=$('#price');e.textContent='$'+p;e.classList.remove('bump');void e.offsetWidth;e.classList.add('bump')}
+const setTurn=t=>{$('#turn').textContent=t=='you'?'Your turn':'Chef AI is thinking…';$('#pYou').classList.toggle('on',t=='you');$('#pAI').classList.toggle('on',t=='ai')};
+function ask(mk,def,ms=8000){return new Promise(res=>{const a=$('#act');let done=0,tm;const fin=v=>{if(done)return;done=1;clearTimeout(tm);a.innerHTML='';bar(0);res(v)};
+const draw=()=>{a.innerHTML='';mk(draw,fin).forEach(b=>{const e=document.createElement('button');e.className='b '+(b.c||'');e.textContent=b.l;e.disabled=!!b.d;e.onclick=b.f;a.append(e)})};draw();bar(ms);tm=setTimeout(()=>fin(def),ms)})}
+function step(lo,hi,fin){let v=lo;const a=$('#act'),r=()=>{a.innerHTML=`<button class='b' data-d='-1'>−</button><div class='num'>$${v}</div><button class='b' data-d='1'>+</button><button class='b r' data-d='0'>Offer</button>`;a.querySelectorAll('button').forEach(e=>e.onclick=()=>{const d=+e.dataset.d;if(!d)return fin({t:'b',a:v});v=Math.max(lo,Math.min(hi,v+d));r()})};r()}
+function showCard(it){const c=$('#card');c.style.cssText='';c.className='';c.innerHTML=(it.cat!='ing'?`<svg viewBox='0 0 60 60' style='width:92px'><g filter='url(#sh)'>${XD[it.id]}</g></svg>`:`<svg viewBox='-14 -22 248 72'><g filter='url(#sh)'>${D[it.id]}</g></svg>`)+`<b>${it.n}</b>`;void c.offsetWidth;c.className='in';$('#price').textContent='$0'}
+async function give(it,w,p){const W=G[w],S=w=='you'?'You':'AI';W.money-=p;(it.cat=='ing'?W.items:W.x).push(it);msg(p?`${W.n} wins ${it.n} for $${p}`:`${W.n} gets ${it.n}`);$('#pYou').classList.remove('on');$('#pAI').classList.remove('on');
+$('#card').style.cssText=`transition:transform .6s ease-in,opacity .6s;transform:translateY(${w=='ai'?-280:280}px) scale(.3);opacity:0`;await sleep(620);
+if(it.cat=='ing')lay($('#p'+S+' .ls'),it.id,W.items.length-1);else putSlot($('#p'+S+' .swh'),it);render();await sleep(650)}
+// ---------- AI ----------
+const gain=(P,it)=>score([...all(P),it]).s-score(all(P)).s;
+function aiMax(it){const A=G.ai,need=Math.max(1,CAP-all(A).length),me=gain(A,it),th=gain(G.you,it);
+if(me<=0||(th<=-3&&me<6))return 0;
+const w=me+Math.max(th,0)*.3,s=Math.min(1,w/12);
+return Math.max(0,Math.min(A.money,Math.round(A.money/need*(.25+s*1.8)+Math.random()*2-.5)))}
+async function aiAct(price,it){await sleep(900+Math.random()*1500);const A=G.ai,mx=aiMax(it);
+if(all(A).length==CAP-1)return A.money>price&&mx>price?{t:'b',a:A.money}:{t:'l'};
+if(mx>price){const a=Math.min(price+(Math.random()<.7?1:Math.min(3,mx-price)),mx,A.money);return{t:'b',a}}
+return price==0?{t:'b',a:1}:{t:'l'}}
+// ---------- game ----------
+let mode='classic',CAP=5;
+const Q={ing:5,drink:1,dessert:1,side:1},cnt=(P,c)=>c=='ing'?P.items.length:P.x.filter(x=>x.cat==c).length,all=P=>[...P.items,...P.x],full=(P,c)=>cnt(P,c)>=Q[c];
+async function play(nick){CAP=mode=='complete'?8:5;G={you:{n:nick,money:20,items:[],x:[]},ai:{n:'Chef AI',money:20,items:[],x:[]}};
+$('#nYou').textContent=nick.toUpperCase();show('game');$('#pYou .swh').innerHTML=base();$('#pAI .swh').innerHTML=base();document.querySelectorAll('#game .swh').forEach(e=>e.classList.toggle('pl',mode=='complete'));render();
+const nd=2+(Math.random()<.5|0),rounds=shuf([...shuf(ALL.filter(x=>x.m)).slice(0,4),...shuf(ALL.filter(x=>x.d)).slice(0,nd),...shuf(ALL.filter(x=>!x.m&&!x.d)).slice(0,6-nd)]);
+if(mode=='complete')['drink','dessert','side'].forEach(c=>rounds.push(...shuf(XA.filter(x=>x.cat==c)).slice(0,2)));
+let k=0,bonus=0;
+for(const it of rounds){const Y=G.you,A=G.ai;
+if(it.cat!='ing'&&!bonus){bonus=1;Y.money+=5;A.money+=5;render();msg('Sandwiches done! +$5 each for drink, dessert & side');await sleep(1900)}
+showCard(it);setTurn('');await sleep(1000);
+if(full(Y,it.cat)){await give(it,'ai',0);continue}if(full(A,it.cat)){await give(it,'you',0);continue}
+if(!Y.money||!A.money){if(!Y.money&&!A.money){await give(it,all(Y).length<=all(A).length?'you':'ai',0);continue}
+const rich=Y.money?'you':'ai';msg(`${G[rich=='you'?'ai':'you'].n} is out of cash!`);let take;
+if(rich=='you'){msg('Do you wanna take it?');take=await ask(()=>[{l:'Yes',f:()=>take_(true)},{l:'No',c:'r',f:()=>take_(false)}],false)}
+else{await sleep(1300);take=gain(A,it)>1&&!(gain(G.you,it)<=-3&&gain(A,it)<6)}
+await give(it,take?rich:rich=='you'?'ai':'you',0);continue}
+let price=0,last=null,turn=k++%2?'ai':'you';
+for(;;){const me=G[turn],o=turn=='you'?'ai':'you';setTurn(turn);let act;
+if(price>0&&me.money<=price){msg(`${me.n} can't afford more`);await sleep(900);act={t:'l'}}
+else if(turn=='you'){const m=me.money,four=all(me).length==CAP-1;
+act=await ask((draw,fin)=>four?[{l:'All In',c:'r',d:m<=price,f:()=>fin({t:'b',a:m})},{l:'Leave It',f:()=>fin({t:'l'})}]:[{l:'Offer +1',d:m<=price,f:()=>fin({t:'b',a:price+1})},{l:'Offer…',d:m<=price,f:()=>step(price+1,m,fin)},{l:'Leave',c:'r',d:price==0,f:()=>fin({t:'l'})}],four?{t:'l'}:price==0?{t:'b',a:1}:{t:'l'})}
+else act=await aiAct(price,it);
+if(act.t=='l'){await give(it,o,price);break}
+price=act.a;last=turn;turn=o;setPrice(price);msg(`${me.n} offers $${price}${price==me.money?' — ALL IN!':''}`);await sleep(500)}}
+await finish()}
+let take_=()=>{};
+// the Yes/No buttons need access to ask()'s resolver
+const _ask=ask;ask=function(mk,def,ms){return _ask((d,f)=>{take_=f;return mk(d,f)},def,ms)};
+async function finish(){setTurn('');$('#turn').textContent=mode=='complete'?'Plate complete!':'Sandwiches done!';msg(mode=='complete'?'The judge is tasting the plate…':'The judge is tasting…');document.querySelectorAll('#game svg.sw').forEach(s=>s.classList.add('closed'));await sleep(2200);
+const R=['you','ai'].map(w=>{const P=G[w],S=score(all(P)),b=0;return{P,S,t:S.s+b}});
+const[y,a]=R,win=y.t==a.t?null:y.t>a.t?y:a;
+const best=(win||y).S.notes.slice().sort((p,q)=>q[1]-p[1])[0],worst=(win?R.find(r=>r!=win):a).S.notes.slice().sort((p,q)=>p[1]-q[1])[0];
+const card=r=>`<div class='res${r==win?' w':''}'><b>${r.P.n}</b><div class='swh'></div><div class='sc'>${r.t}</div><ul>${r.S.notes.slice().sort((p,q)=>Math.abs(q[1])-Math.abs(p[1])).slice(0,4).map(n=>`<li><span>${n[0]}</span><i>${n[1]>0?'+':''}${n[1]}</i></li>`).join('')}</ul></div>`;
+$('#end').innerHTML=`<h1 class='t'>${win?win.P.n+' wins!':'A tie!'}</h1><div style='display:flex;gap:8px'>${card(y)}${card(a)}</div><p style='text-align:center;margin:6px 8px'>${win?`${best&&best[1]>0?`“${best[0]}” made the difference.`:'Strong all around.'}${worst&&worst[1]<0?` ${worst[0]} hurt the other side.`:''}`:'Same flavor, same score.'}</p><button class='b r big' style='margin:0 auto 12px' onclick='location.reload()'>Play again</button>`;
+const sws=document.querySelectorAll('#end .swh');fill(sws[0],y.P.items);fill(sws[1],a.P.items);[y,a].forEach((r,i)=>r.P.x.forEach(x=>putSlot(sws[i],x)));sws.forEach(e=>e.classList.toggle('pl',mode=='complete'));sws.forEach(s=>s.firstChild.classList.add('closed'));show('end')}
+</script></body></html>
